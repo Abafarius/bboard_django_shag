@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'django_bootstrap5',
 
     'main',
+
+    'django_cleanup',
+    'easy_thumbnails',
 ]
 
 
@@ -69,6 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'main.middleware.bboard_context_processor',
             ],
         },
     },
@@ -134,3 +138,17 @@ AUTH_USER_MODEL = 'main.AdvUser'
 LOGOUT_REDIRECT_URL = 'main:index'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+
+THUMBNAIL_ALIASES = {
+    '': {
+        'default': {
+            'size': (96, 96),
+            'crop': 'scale',
+        },
+    },
+}
+THUMBNAIL_BASEDIR = 'thumbnails'
