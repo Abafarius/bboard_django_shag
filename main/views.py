@@ -13,6 +13,8 @@ from django.urls import reverse_lazy
 from .models import AdvUser
 from .forms import ProfileEditForm
 
+from django.contrib.auth.views import PasswordChangeView
+
 
 class ProfileEditView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
     model = AdvUser
@@ -54,3 +56,9 @@ def other_page(request, page):
 
 def index(request):
     return render(request, 'main/index.html')
+
+
+class PasswordEditView(SuccessMessageMixin, LoginRequiredMixin, PasswordChangeView):
+    template_name = 'main/password_edit.html'
+    success_url = reverse_lazy('main:profile')
+    success_message = 'Пароль пользователя изменён'
