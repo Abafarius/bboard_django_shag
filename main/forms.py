@@ -6,12 +6,16 @@ from django.core.exceptions import ValidationError
 
 from .signals import post_register
 
+from .models import SuperRubric, SubRubric
+
+
 class ProfileEditForm(forms.ModelForm):
     email = forms.EmailField(required=True, label='Адрес электронной почты')
 
     class Meta:
         model = AdvUser
         fields = ('username', 'email', 'first_name', 'last_name', 'send_messages')
+
 
 class RegisterForm(forms.ModelForm):
     email = forms.EmailField(required=True, label='Адрес электронной почты')
@@ -41,3 +45,10 @@ class RegisterForm(forms.ModelForm):
         post_register.send(RegisterForm, instance=user)
         return user
 
+
+class SubRubricForm(forms.ModelForm):
+    super_rubric = forms.ModelChoiceField(queryset=SuperRubric.objects.all(), empty_label=None, label='Надрубрика', required=True)
+
+    class Meta:
+        model = SubRubric
+        fields = '__all__'
