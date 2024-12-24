@@ -6,6 +6,10 @@ from .utilities import send_activation_notification
 from .models import AdvUser
 admin.site.register(AdvUser)
 
+from .models import SuperRubric, SubRubric
+from .forms import SubRubricForm
+
+from .models import Bb, AdditionalImage
 
 @admin.action(description='Отправить письма с требованиями активации')
 def send_notifications(modeladmin, request, queryset):
@@ -51,4 +55,23 @@ class AdvUserAdmin(admin.ModelAdmin):
     actions = (send_notifications,)
 
 
-admin.site.register(AdvUser, AdvUserAdmin)
+
+
+
+class SubRubricInline(admin.TabularInline):
+    model = SubRubric
+
+
+class SuperRubricAdmin(admin.ModelAdmin):
+    exclude = ('super_rubric',)
+    inlines = (SubRubricInline,)
+
+
+admin.site.register(SuperRubric, SuperRubricAdmin)
+
+
+class SubRubricAdmin(admin.ModelAdmin):
+    form = SubRubricForm
+
+
+admin.site.register(SubRubric, SubRubricAdmin)
