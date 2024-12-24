@@ -15,6 +15,17 @@ from .forms import ProfileEditForm
 
 from django.contrib.auth.views import PasswordChangeView
 
+from django.views.generic.edit import CreateView
+from .forms import RegisterForm
+from django.views.generic.base import TemplateView
+
+from django.core.signing import BadSignature
+
+from .utilities import signer
+
+from django.views.generic.edit import DeleteView
+from django.contrib.auth import logout
+
 
 class ProfileEditView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
     model = AdvUser
@@ -62,3 +73,45 @@ class PasswordEditView(SuccessMessageMixin, LoginRequiredMixin, PasswordChangeVi
     template_name = 'main/password_edit.html'
     success_url = reverse_lazy('main:profile')
     success_message = 'Пароль пользователя изменён'
+
+
+class RegisterView(CreateView):
+    model = AdvUser
+    template_name = 'main/register.html'
+    form_class = RegisterForm
+    success_url = reverse_lazy('main:register_done')
+
+class RegisterDoneView(TemplateView):
+    template_name = 'main/register.html'
+
+def user_activate(request, sign):
+    try:
+        username = signer.unsign(sign)
+    except BadSignature:
+        return render(request, 'main/activation_failed.html')
+    user = get_object_or_404(AdvUser, username=username)
+    if user.is_activated:
+        template = 'main/activation_done_earlier.html'
+    else:
+        template = 'main/activation_done.html'
+        user.is_active = True
+        user.is_activated = True
+        user.save()
+    return render(request, template)
+
+
+class ProfileDeleteView(SuccessMessageMixin, LoginRequiredMixin, DeleteView):
+    model = AdvUser
+    template_name = 'main/ profile_delete.html'
+    success_url = reverse_lazy('main:index')
+    success_message = 'Пользователь удалён'
+    def setup(self, request, *args, **kwargs):
+        self.user_id = request.user.pk
+        return super().setup(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        logout(request)
+        return super().post(request, *args, **kwargs)
+    def get_object(self, queryset=None):
+        if not queryset:
+            queryset = self.get_queryset()
+        return get_object_or_404(queryset, pk=self.user_id)
